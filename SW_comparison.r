@@ -32,7 +32,8 @@ results[1,3] <- "PSU"
 results[1,4] <- round(des1$m.opt)
 results[2,1] <- "income_hh"
 results[2,2] <- "PractTools"
-results[2,3] <- "SSU" 
+results[2,3] <- "SSU"
+results[2,4] <- round(des1$m.opt*des1$n.opt)
 
 bw <- BW2stagePPS(pop$active, 
                   pp,
@@ -49,7 +50,6 @@ des2 <- clusOpt2(C1=180,
 des2
 sample_size <- des2$m.opt*des2$n.opt
 sample_size
-results[2,4] <- round(des1$m.opt*des1$n.opt)
 results[3,1] <- "active"
 results[3,2] <- "PractTools"
 results[3,3] <- "PSU" 
@@ -82,6 +82,7 @@ results[5,4] <- round(des3$m.opt)
 results[6,1] <- "inactive"
 results[6,2] <- "PractTools"
 results[6,3] <- "SSU" 
+results[6,4] <- round(des3$m.opt*des3$n.opt)
 
 # Fourth variable (unemployed)
 bw <- BW2stagePPS(pop$unemployed, 
@@ -99,7 +100,6 @@ des4 <- clusOpt2(C1=350, # whatever value, m.opt always exceed number of municip
 des4
 sample_size <- des4$m.opt*des4$n.opt
 sample_size
-results[6,4] <- round(des3$m.opt*des3$n.opt)
 results[7,1] <- "unemployed"
 results[7,2] <- "PractTools"
 results[7,3] <- "PSU" 
@@ -107,6 +107,7 @@ results[7,4] <- round(des4$m.opt)
 results[8,1] <- "unemployed"
 results[8,2] <- "PractTools"
 results[8,3] <- "SSU"
+results[8,4] <- round(des4$m.opt*des4$n.opt)
 
 library(R2BEAT)
 
@@ -126,7 +127,6 @@ deff_var <- "stratum"
 domain_var <- "one"  
 delta =  1       # households = survey units
 minimum <- 50    # minimum number of SSUs to be interviewed in each selected PSU
-f = 0.05         # suggestion for the sampling fraction 
 deff_sugg <- 1.5 # suggestion for the deff value
 inp1 <- prepareInputToAllocation1(samp_frame,
                                 id_PSU,
@@ -137,7 +137,6 @@ inp1 <- prepareInputToAllocation1(samp_frame,
                                 domain_var,
                                 minimum,
                                 delta,
-                                f,
                                 deff_sugg)
 inp1$rho
 ## -----------------------------------------------------------
@@ -156,14 +155,15 @@ alloc1 <- beat.2st(stratif = inp1$strata,
                   minnumstrat = 2, 
                   maxiter = 200, 
                   maxiter1 = 25)
-results[8,4] <- round(des4$m.opt*des4$n.opt)
+PSUs <- select_PSU(alloc1,plot=F)
 results[9,1] <- "income_hh"
 results[9,2] <- "R2BEAT"
 results[9,3] <- "PSU" 
-results[9,4] <- alloc1$iterations[nrow(alloc1$iterations),4]
+results[9,4] <- PSUs$PSU_stats$PSU[nrow(PSUs$PSU_stats)]
 results[10,1] <- "income_hh"
 results[10,2] <- "R2BEAT"
 results[10,3] <- "SSU" 
+results[10,4] <- PSUs$PSU_stats$SSU[nrow(PSUs$PSU_stats)]
 
 # SECOND VARIABLE : active
 
@@ -172,19 +172,7 @@ cv <- as.data.frame(list(DOM=c("DOM1"),
                          CV1=c(0.03)))
 ## -----------------------------------------------------------
 ## Prepare inputs for allocation
-samp_frame <- pop
-samp_frame$one <- 1
-id_PSU <- "municipality"  
-id_SSU <- "id_ind"        
-strata_var <- "one"   
-# target_vars <- c("income_hh","active","inactive","unemployed")   
 target_vars <- c("active") 
-deff_var <- "stratum"     
-domain_var <- "one"  
-delta =  1       # households = survey units
-minimum <- 50    # minimum number of SSUs to be interviewed in each selected PSU
-f = 0.05         # suggestion for the sampling fraction 
-deff_sugg <- 1.5 # suggestion for the deff value
 inp2 <- prepareInputToAllocation1(samp_frame,
                                  id_PSU,
                                  id_SSU,
@@ -194,7 +182,6 @@ inp2 <- prepareInputToAllocation1(samp_frame,
                                  domain_var,
                                  minimum,
                                  delta,
-                                 f,
                                  deff_sugg)
 inp2$rho
 ## -----------------------------------------------------------
@@ -214,34 +201,22 @@ alloc2 <- beat.2st(stratif = inp2$strata,
                   minnumstrat = 2, 
                   maxiter = 200, 
                   maxiter1 = 25)
-results[10,4] <- alloc1$iterations[nrow(alloc1$iterations),5]
+PSUs <- select_PSU(alloc2,plot=F)
 results[11,1] <- "active"
 results[11,2] <- "R2BEAT"
 results[11,3] <- "PSU" 
-results[11,4] <- alloc2$iterations[nrow(alloc2$iterations),4]
+results[11,4] <- PSUs$PSU_stats$PSU[nrow(PSUs$PSU_stats)]
 results[12,1] <- "active"
 results[12,2] <- "R2BEAT"
 results[12,3] <- "SSU" 
-
+results[12,4] <- PSUs$PSU_stats$SSU[nrow(PSUs$PSU_stats)]
 
 ## Precision constraints
 cv <- as.data.frame(list(DOM=c("DOM1"),
                          CV1=c(0.03)))
 ## -----------------------------------------------------------
 ## Prepare inputs for allocation
-samp_frame <- pop
-samp_frame$one <- 1
-id_PSU <- "municipality"  
-id_SSU <- "id_ind"        
-strata_var <- "one"   
-# target_vars <- c("income_hh","active","inactive","unemployed")   
 target_vars <- c("inactive") 
-deff_var <- "stratum"     
-domain_var <- "one"  
-delta =  1       # households = survey units
-minimum <- 50    # minimum number of SSUs to be interviewed in each selected PSU
-f = 0.05         # suggestion for the sampling fraction 
-deff_sugg <- 1.5 # suggestion for the deff value
 inp3 <- prepareInputToAllocation1(samp_frame,
                                  id_PSU,
                                  id_SSU,
@@ -251,7 +226,6 @@ inp3 <- prepareInputToAllocation1(samp_frame,
                                  domain_var,
                                  minimum,
                                  delta,
-                                 f,
                                  deff_sugg)
 inp3$rho
 ## -----------------------------------------------------------
@@ -270,33 +244,23 @@ alloc3 <- beat.2st(stratif = inp3$strata,
                   minnumstrat = 2, 
                   maxiter = 200, 
                   maxiter1 = 25)
-results[12,4] <- alloc2$iterations[nrow(alloc2$iterations),5]
+PSUs <- select_PSU(alloc3,plot=F)
 results[13,1] <- "inactive"
 results[13,2] <- "R2BEAT"
 results[13,3] <- "PSU" 
-results[13,4] <- alloc3$iterations[nrow(alloc3$iterations),4]
+results[13,4] <- PSUs$PSU_stats$PSU[nrow(PSUs$PSU_stats)]
 results[14,1] <- "inactive"
 results[14,2] <- "R2BEAT"
 results[14,3] <- "SSU" 
+results[14,4] <- PSUs$PSU_stats$SSU[nrow(PSUs$PSU_stats)]
+
 
 ## Precision constraints
 cv <- as.data.frame(list(DOM=c("DOM1"),
                          CV1=c(0.05)))
 ## -----------------------------------------------------------
 ## Prepare inputs for allocation
-samp_frame <- pop
-samp_frame$one <- 1
-id_PSU <- "municipality"  
-id_SSU <- "id_ind"        
-strata_var <- "one"   
-# target_vars <- c("income_hh","active","inactive","unemployed")   
 target_vars <- c("unemployed") 
-deff_var <- "stratum"     
-domain_var <- "one"  
-delta =  1       # households = survey units
-minimum <- 50    # minimum number of SSUs to be interviewed in each selected PSU
-f = 0.05         # suggestion for the sampling fraction 
-deff_sugg <- 1.5 # suggestion for the deff value
 inp4 <- prepareInputToAllocation1(samp_frame,
                                  id_PSU,
                                  id_SSU,
@@ -306,7 +270,6 @@ inp4 <- prepareInputToAllocation1(samp_frame,
                                  domain_var,
                                  minimum,
                                  delta,
-                                 f,
                                  deff_sugg)
 inp4$rho
 ## -----------------------------------------------------------
@@ -325,14 +288,16 @@ alloc4 <- beat.2st(stratif = inp4$strata,
                   minnumstrat = 2, 
                   maxiter = 200, 
                   maxiter1 = 25)
-results[14,4] <- alloc3$iterations[nrow(alloc3$iterations),5]
+PSUs <- select_PSU(alloc4,plot=F)
 results[15,1] <- "unemployed"
 results[15,2] <- "R2BEAT"
 results[15,3] <- "PSU" 
-results[15,4] <- alloc4$iterations[nrow(alloc4$iterations),4]
+results[15,4] <- PSUs$PSU_stats$PSU[nrow(PSUs$PSU_stats)]
 results[16,1] <- "unemployed"
 results[16,2] <- "R2BEAT"
 results[16,3] <- "SSU" 
+results[16,4] <- PSUs$PSU_stats$SSU[nrow(PSUs$PSU_stats)]
+
 
 library("samplesize4surveys")
 
@@ -353,7 +318,6 @@ a1 <- ss2s4m(N = nrow(pop),
        to = 50, 
        rho = rho_income_hh)
 a1[50,]
-results[16,4] <- alloc4$iterations[nrow(alloc4$iterations),5]
 results[17,1] <- "income_hh"
 results[17,2] <- "samplesize4surveys"
 results[17,3] <- "PSU" 
