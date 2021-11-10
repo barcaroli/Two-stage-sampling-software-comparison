@@ -483,6 +483,5 @@ p <- ggplot(data=results[results$Unit=="SSU",], aes(x=Variable, y=Units, fill=Pa
    geom_bar(stat="identity", position=position_dodge(),)
 p + labs(title="SSUs by variable and package", 
          x="Variable", y = "SSUs") 
-
 ```
 

@@ -385,11 +385,13 @@ library(ggplot2)
 p <- ggplot(data=results[results$Unit=="PSU",], aes(x=Variable, y=Units, fill=Package)) +
    geom_bar(stat="identity", position=position_dodge(),)
 p + labs(title="PSUs by variable and package", 
-         x="Variable", y = "PSUs") 
+         x="Variable", y = "PSUs") + scale_fill_grey() + theme_bw()
 p <- ggplot(data=results[results$Unit=="SSU",], aes(x=Variable, y=Units, fill=Package)) +
    geom_bar(stat="identity", position=position_dodge(),)
 p + labs(title="SSUs by variable and package", 
-         x="Variable", y = "SSUs") 
+         x="Variable", y = "SSUs") + scale_fill_grey() + theme_bw()
 
+
+results
 
 
